@@ -1,0 +1,52 @@
+version: '2'
+services:
+  redis_service:
+    image: redis
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    restart: unless-stopped
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG_RETENTION_BYTES: 1000000000
+    depends_on:
+      - zookeeper
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    environment:
+      - cluster.name=redelk-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx2024m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata_node1:/usr/share/elasticsearch/data
+    ports:
+      - "127.0.0.1:9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.6.0
+    links:
+      - elasticsearch
+    volumes:
+      - "./elkserver/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:6.6.0
+    links:
+      - elasticsearch
+      - kafka
+    volumes:
+      - "./elkserver/logstash/conf.d:/usr/share/logstash/pipeline"
+
+
+volumes:
+  esdata_node1:
+    driver: local
