@@ -1,0 +1,15 @@
+version: '2'
+services:
+  proxy:
+    image: haproxy:latest
+    volumes:
+      - "./etc/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+      - "proxylogs:/var/log"
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:6.6.0
+    volumes:
+      - "proxylogs:/var/log/haproxy"
+
+volumes:
+  proxylogs:

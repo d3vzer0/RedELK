@@ -36,7 +36,7 @@ services:
     links:
       - elasticsearch
     volumes:
-      - "./elkserver/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
+      - "./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
 
   logstash:
     image: docker.elastic.co/logstash/logstash:6.6.0
@@ -44,14 +44,14 @@ services:
       - elasticsearch
       - kafka
     volumes:
-      - "./elkserver/logstash/conf.d:/usr/share/logstash/pipeline"
+      - "./logstash/conf.d:/usr/share/logstash/pipeline"
 
   elkworker:
-    build: ./elkserver/worker
+    build: ./worker
     links:
       - elasticsearch
     volumes:
-      - "./elkserver/etc:/etc/redelk"
+      - "./etc:/etc/redelk"
 
 volumes:
   esdata_node1:

@@ -3,7 +3,7 @@ filebeat.prospectors:
   enabled: true
   fields_under_root: true
   paths:
-    - /var/log/haproxy.log
+    - /var/log/haproxy/haproxy.log
   fields:
     infralogtype: redirhaproxy
 
@@ -19,6 +19,6 @@ fields_under_root: true
 fields:
   attackscenario: @@ATTACKSCENARIO@@
 
-output.logstash:
-  hosts: ["@@HOSTANDPORT@@"]
-  ssl.certificate_authorities: ["/etc/filebeat/redelkCA.crt"]
+output.kafka:
+  hosts:  ["@@HOSTANDPORT@@"]
+  topic: 'redirs'
