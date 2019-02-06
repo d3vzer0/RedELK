@@ -46,6 +46,12 @@ services:
     volumes:
       - "./elkserver/logstash/conf.d:/usr/share/logstash/pipeline"
 
+  elkworker:
+    build: ./elkserver/worker
+    links:
+      - elasticsearch
+    volumes:
+      - "./elkserver/etc:/etc/redelk"
 
 volumes:
   esdata_node1:
