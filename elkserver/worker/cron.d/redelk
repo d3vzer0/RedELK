@@ -14,7 +14,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # RedELK rsync comands for getting remote log files from teamservers via rsync - replace $IP with the remote host's DNS/IP, $HOSTNAME with the remote hostname as configured in filebeat on that system amd $USER with the username to login with.
 # Repeat line for multiple teamservers.
 # m h dom mon dow user  command
-#*/2 * * * * redelk /usr/share/redelk/bin/getremotelogs.sh $IP $HOSTNAME scponly
 
 # Run update script for TOR exit nodes twice a day
 # m h dom mon dow user  command

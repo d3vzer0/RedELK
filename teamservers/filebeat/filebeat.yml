@@ -58,6 +58,6 @@ fields:
   attackscenario: @@ATTACKSCENARIO@@
 harvester.limit: 1
 
-output.logstash:
-  hosts: ["@@HOSTANDPORT@@"]
-  ssl.certificate_authorities: ["/etc/filebeat/redelkCA.crt"]
+output.kafka:
+  hosts:  ["@@HOSTANDPORT@@"]
+  topic: 'cobaltstrike'
