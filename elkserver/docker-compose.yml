@@ -46,6 +46,16 @@ services:
     volumes:
       - "./logstash/conf.d:/usr/share/logstash/pipeline"
 
+  alerting:
+    image: bitsensor/elastalert:latest
+    links:
+      - elasticsearch
+    volumes:
+      - "./alerting/config/config.yaml:/opt/elastalert/config.yaml"
+      - "./alerting/config/config.json:/opt/elastalert-server/config/config.json"
+      - "./alerting/rules:/opt/elastalert/rules"
+      - "./alerting/templates:/opt/elastalert/rule_templates"
+
   elkworker:
     build: ./worker
     links:
