@@ -1,0 +1,25 @@
+{
+    "appName": "elastalert-server", 
+    "port": 3030,
+    "elastalertPath": "/opt/elastalert",  
+    "start": "2014-01-01T00:00:00", 
+    "end": "2016-01-01T00:00:00", 
+    "verbose": true, 
+    "es_debug": true, 
+    "debug": false,
+    "rulesPath": { 
+      "relative": true, 
+      "path": "/opt/elastalert/rules" 
+    },
+    "templatesPath": { 
+      "relative": true, 
+      "path": "/opt/elastalert/rule_templates"
+    },
+    "dataPath": {
+      "relative": true,
+      "path": "/tmp/server_data"
+    },
+    "es_host": "elasticsearch", 
+    "es_port": 9200,
+    "writeback_index": "elastalert_status"
+  }
