@@ -2,22 +2,23 @@ version: '3'
 services:
   redis_service:
     image: redis
-
-  zookeeper:
-    image: wurstmeister/zookeeper:latest
-    restart: unless-stopped
-
-  kafka:
-    image: wurstmeister/kafka:latest
-    restart: unless-stopped
-    environment:
-      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+                                                                                        
+  zookeeper:                                                                                       
+     image: confluentinc/cp-zookeeper:latest                                                      
+     environment:                                                                                 
+        ZOOKEEPER_CLIENT_PORT: 2181                                                                                
+                                                                                                  
+  kafka:                                                                                           
+    image: confluentinc/cp-kafka:latest                                                            
+    environment:                                                                                   
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LOG_RETENTION_BYTES: 1000000000
-    depends_on:
-      - zookeeper
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
-      - "9092:9092"
+      - "9092:9092"                                                                                         
 
   # Change the following systemconfig to enable higher memory mapping
   # sysctl -w vm.max_map_count=262144
@@ -55,6 +56,7 @@ services:
       - kafka
     volumes:
       - "./logstash/conf.d:/usr/share/logstash/pipeline"
+      - "./logstash/geoip:/usr/share/logstash/GeoLite2-dbs"
 
   alerting:
     image: bitsensor/elastalert:latest

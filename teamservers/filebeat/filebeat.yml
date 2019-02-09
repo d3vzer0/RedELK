@@ -4,46 +4,46 @@ filebeat.prospectors:
   enabled: true
   fields_under_root: true
   paths:
-    - /root/cobaltstrike/logs/*/events.log
+    - /usr/share/filebeat/logs/cobaltstrike/*/events.log
   fields:
     infralogtype: rtops
-    cslogtype: events
+    cs_event: events
 
 - type: log
   scan_frequency: 5s
   enabled: true
   fields_under_root: true
   paths:
-    - /root/cobaltstrike/logs/*/weblog.log
+    - /usr/share/filebeat/logs/cobaltstrike/*/weblog.log
   fields:
     infralogtype: rtops
-    cslogtype: weblog
+    cs_event: weblog
 
 - type: log
   scan_frequency: 5s
   enabled: true
   fields_under_root: true
   paths:
-    - /root/cobaltstrike/logs/*/*/beacon_*.log
+    - /usr/share/filebeat/logs/cobaltstrike/*/*/beacon_*.log
   multiline.pattern: '^\d\d\/\d\d\s\d\d\:\d\d\:\d\d\s\[' # match "06/19 12:32:56 ["
   multiline.negate: true
   multiline.match: after
   fields:
     infralogtype: rtops
-    cslogtype: beacon
+    cs_event: beacon
 
 - type: log
   scan_frequency: 5s
   enabled: true
   fields_under_root: true
   paths:
-    - /root/cobaltstrike/logs/*/*/keystrokes/keystrokes_*.txt
+    - /usr/share/filebeat/logs/cobaltstrike/*/*/keystrokes/keystrokes_*.txt
   multiline.pattern: '^\d\d\/\d\d\s\d\d\:\d\d\:\d\d\s\bReceived keystrokes\b$' # match "06/19 12:32:56 Received keystrokes"
   multiline.negate: true
   multiline.match: after
   fields:
     infralogtype: rtops
-    cslogtype: keystrokes
+    cs_event: keystrokes
 
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
@@ -60,4 +60,4 @@ harvester.limit: 1
 
 output.kafka:
   hosts:  ["@@HOSTANDPORT@@"]
-  topic: 'cobaltstrike'
+  topic: 'cobaltstrike-raw'
