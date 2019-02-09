@@ -1,9 +1,9 @@
 version: '2'
 services:
-  proxy:
+  haproxy:
     image: haproxy:latest
     volumes:
-      - "./etc/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+      - "./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
       - "proxylogs:/var/log"
 
   filebeat:
