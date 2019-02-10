@@ -45,33 +45,42 @@ class Intel:
         self.rserver = redis.Redis(host=server, port=6379, db=0)
         self.cache = {
             'virustotal': 3600,
-            'greynoise': 3600
+            'greynoise': 3600,
+            'xforce': 3600
         }
 
-    def greynoise(self):
-        job_name = "greynoise-{}".format(self.kwargs['ip'])
+    def check_cache(self, job, value):
+        job_name = '{}-{}'.format(job, value)
         job_id = hashlib.md5(job_name.encode('utf-8')).hexdigest()
-        records = self.rserver.get(job_id)
-        if records == None:
+        get_cache = self.rserver.get(job_id)
+        records = json.loads(get_cache) if get_cache is not None else []
+        return {'job_id':job_id, 'records':records}
+
+    def greynoise(self):
+        result = self.check_cache('greynoise', self.kwargs['ip'])
+        if not result['records']:
             greynoise = requests.post(api_keys['greynoise']['url'], data={'ip':self.kwargs['ip']}).json()
-            records = greynoise.get('records', [])
-            self.rserver.set(job_id, json.dumps(records), ex=self.cache['greynoise'])
-        else:
-            records = json.loads(records)
-        return records
+            result['records'] = greynoise.get('records', [])
+            self.rserver.set(result['job_id'], json.dumps(result['records']), ex=self.cache['greynoise'])
+        return result
     
     def virustotal(self):
-        job_name = "virustotal-{}".format(self.kwargs['md5'])
-        job_id = hashlib.md5(job_name.encode('utf-8')).hexdigest()
-        records = self.rserver.get(job_id)
-        if records == None:
+        result = self.check_cache('virustotal',  self.kwargs['md5'])
+        if not result['records']:
             url = '{}?apikey={}&resource={}'.format(api_keys['virustotal']['url'], api_keys['virustotal']['key'], self.kwargs['md5'])
             virustotal = requests.get(url).json()
-            records = [virustotal] if virustotal['response_code'] == 1 else []
-            self.rserver.set(job_id, json.dumps(records), ex=self.cache['virustotal'])
-        else:
-            records = json.loads(records)
-        return records
+            result['records'] = [virustotal] if virustotal['response_code'] == 1 else []
+            self.rserver.set(result['job_id'], json.dumps(result['records']), ex=self.cache['virustotal'])
+        return result
+
+    def xforce(self):
+        result = self.check_cache('xforce',  self.kwargs['md5'])
+        if not result['records']:
+            url = '{}/malware/{}'.format(api_keys['xforce']['url'], self.kwargs['md5'])
+            xforce = requests.get(url, auth=(api_keys['xforce']['key'], api_keys['xforce']['password'])).json()
+            result['records'] = [xforce] if not 'error' in xforce else []
+            self.rserver.set(result['job_id'], json.dumps(result['records']), ex=self.cache['xforce'])
+        return result
 
 
 class Producer:
@@ -88,14 +97,19 @@ class Producer:
     def greynoise(self):            
         all_ips = ContextES().get_unique_extips()
         for ip in all_ips:
-            records = Intel(ip=ip).greynoise()
+            records = Intel(ip=ip).greynoise()['records']
             produce_records = self.produce_enrichment('src_ip', ip, records)
     
     def virustotal(self):            
         all_indicators = ContextFile().get_indicators()
         for indicator in all_indicators:
-            records = Intel(md5=indicator).virustotal()
+            records = Intel(md5=indicator).virustotal()['records']
             produce_records = self.produce_enrichment('md5', indicator, records)
 
-
-# Producer(topic='intel-virustotal').virustotal()
+    def xforce(self):
+        all_indicators = ContextFile().get_indicators()
+        for indicator in all_indicators:
+            records = Intel(md5=indicator).xforce()['records']
+            produce_records = self.produce_enrichment('md5', indicator, records)
+            
+# Producer(topic='intel-xforce').xforce()
