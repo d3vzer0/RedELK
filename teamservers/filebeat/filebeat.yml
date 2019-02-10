@@ -52,12 +52,12 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 3
 
-name: "@@HOSTNAME@@"
+name: ${CSHOSTNAME:csteamserver}
 fields_under_root: true
 fields:
-  attackscenario: @@ATTACKSCENARIO@@
+  attackscenario: ${ATTCKSCENARIO:example_scenario}
 harvester.limit: 1
 
 output.kafka:
-  hosts:  ["@@HOSTANDPORT@@"]
+  hosts:  [$KAFKAHOSTS]
   topic: 'cobaltstrike-raw'
