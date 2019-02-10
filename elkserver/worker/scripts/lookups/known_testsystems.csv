@@ -1,0 +1,2 @@
+query_mode;target_user;target_hostname;target_ipint
+AND;testuser.*;testsystem.*;10.*
