@@ -65,5 +65,3 @@ class Lookups:
         for key, value in self.lookups.items():
             result[key] = value()
         return result
-
-Lookups().load()
