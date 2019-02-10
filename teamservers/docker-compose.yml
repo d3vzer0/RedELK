@@ -5,3 +5,7 @@ services:
     volumes:
       - "./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
       - "/opt/cobaltstrike/cobaltstrike/logs:/root/cobaltstrike/logs"
+    environment:
+      CSHOSTNAME: "csteamserver"
+      KAFKAIP: "'localhost:9200'"
+      ATTCKSCENARIO: "example_scenario"
