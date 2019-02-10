@@ -1,9 +1,26 @@
 from elasticsearch import Elasticsearch
 from kafka import KafkaProducer
+from config_local import api_keys
+import hashlib
+import redis
 import json
 import requests
+import csv
 
-class Context:
+
+class ContextFile:
+    def __init__(self, path='./lookups'):
+        self.path = path
+    
+    def get_indicators(self, lookup='indicators_md5.csv'):
+        file_path = '{}/{}'.format(self.path, lookup)
+        csv_object = csv.DictReader(open(file_path), delimiter=';')
+        primary_field = csv_object.fieldnames[0]
+        result = [row[primary_field] for row in csv_object]
+        return result
+
+
+class ContextES:
     def __init__(self):
         self.es = Elasticsearch(['localhost:9200'])
         self.beacon_index = "beacondb*"
@@ -23,18 +40,38 @@ class Context:
 
 
 class Intel:
-    def __init__(self, **kwargs):
+    def __init__(self, server='localhost', **kwargs):
         self.kwargs = kwargs
-        self.greynoise_url = 'http://api.greynoise.io:8888/v1/query/ip'
-        self.vt_url = 'https://www.virustotal.com/vtapi/v2/file/report'
+        self.rserver = redis.Redis(host=server, port=6379, db=0)
+        self.cache = {
+            'virustotal': 3600,
+            'greynoise': 3600
+        }
 
     def greynoise(self):
-        greynoise = requests.post(self.greynoise_url, data={'ip':self.kwargs['ip']}).json()
-        records = greynoise.get('records', [])
+        job_name = "greynoise-{}".format(self.kwargs['ip'])
+        job_id = hashlib.md5(job_name.encode('utf-8')).hexdigest()
+        records = self.rserver.get(job_id)
+        if records == None:
+            greynoise = requests.post(api_keys['greynoise']['url'], data={'ip':self.kwargs['ip']}).json()
+            records = greynoise.get('records', [])
+            self.rserver.set(job_id, json.dumps(records), ex=self.cache['greynoise'])
+        else:
+            records = json.loads(records)
         return records
     
     def virustotal(self):
-        return None
+        job_name = "virustotal-{}".format(self.kwargs['md5'])
+        job_id = hashlib.md5(job_name.encode('utf-8')).hexdigest()
+        records = self.rserver.get(job_id)
+        if records == None:
+            url = '{}?apikey={}&resource={}'.format(api_keys['virustotal']['url'], api_keys['virustotal']['key'], self.kwargs['md5'])
+            virustotal = requests.get(url).json()
+            records = [virustotal] if virustotal['response_code'] == 1 else []
+            self.rserver.set(job_id, json.dumps(records), ex=self.cache['virustotal'])
+        else:
+            records = json.loads(records)
+        return records
 
 
 class Producer:
@@ -49,14 +86,16 @@ class Producer:
             self.producer.send(self.kwargs['topic'], record).get(timeout=10)
 
     def greynoise(self):            
-        all_ips = Context().get_unique_extips()
+        all_ips = ContextES().get_unique_extips()
         for ip in all_ips:
             records = Intel(ip=ip).greynoise()
             produce_records = self.produce_enrichment('src_ip', ip, records)
-
-        
-
     
+    def virustotal(self):            
+        all_indicators = ContextFile().get_indicators()
+        for indicator in all_indicators:
+            records = Intel(md5=indicator).virustotal()
+            produce_records = self.produce_enrichment('md5', indicator, records)
 
 
-Producer('192.168.1.124:9092', topic='intel-greynoise').greynoise()
+# Producer(topic='intel-virustotal').virustotal()
