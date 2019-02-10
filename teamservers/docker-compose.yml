@@ -7,5 +7,5 @@ services:
       - "/opt/cobaltstrike/cobaltstrike/logs:/root/cobaltstrike/logs"
     environment:
       CSHOSTNAME: "csteamserver"
-      KAFKAIP: "'localhost:9200'"
+      KAFKAHOSTS: "localhost:9200"
       ATTCKSCENARIO: "example_scenario"
