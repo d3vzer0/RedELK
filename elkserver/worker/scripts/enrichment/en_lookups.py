@@ -2,7 +2,7 @@ import csv
 import re
 
 class Lookups:
-    def __init__(self, path='../lookups'):
+    def __init__(self, path='./lookups'):
         self.path = path
         self.lookups = {
             'customer': self.read_customer,
@@ -23,13 +23,13 @@ class Lookups:
                 'target_user':re.compile(row['target_user'])
             })
 
-        return result
+        return {'type':'multi', 'lookups':result}
 
-    def parse_single(self, file_path):
+    def parse_single(self, file_path, field):
         csv_object = csv.DictReader(open(file_path), delimiter=';')
         primary_field = csv_object.fieldnames[0]
         result = {primary_field: {row[primary_field] for row in csv_object}}
-        return result
+        return {'type':'single', 'lookups':result, 'field':field}
 
     def read_sandboxes(self, lookup='known_sandboxes.csv'):
         file_path = '{}/{}'.format(self.path, lookup)
@@ -43,22 +43,22 @@ class Lookups:
 
     def read_exitnodes(self, lookup='iplist_exitnodes.csv'):
         file_path = '{}/{}'.format(self.path, lookup)
-        exitnodes = self.parse_single(file_path)
+        exitnodes = self.parse_single(file_path, 'target_ipint')
         return exitnodes
 
     def read_customer(self, lookup='iplist_customer.csv'):
         file_path = '{}/{}'.format(self.path, lookup)
-        customer = self.parse_single(file_path)
+        customer = self.parse_single(file_path, 'target_ipint')
         return customer
             
     def read_redteam(self, lookup='iplist_redteam.csv'):
         file_path = '{}/{}'.format(self.path, lookup)
-        redteam = self.parse_single(file_path)
+        redteam = self.parse_single(file_path, 'target_ipint')
         return redteam
             
     def read_unknown(self, lookup='iplist_unknown.csv'):
         file_path = '{}/{}'.format(self.path, lookup)
-        unknown = self.parse_single(file_path)
+        unknown = self.parse_single(file_path, 'target_ipint')
         return unknown
 
     def load(self, result={}):

@@ -5,7 +5,7 @@ from intelligence import Intel
 import json
 
 
-class Producer:
+class IntelProducer:
     def __init__(self, server='localhost:9092', **kwargs):
         self.kwargs = kwargs
         self.producer = KafkaProducer(bootstrap_servers=server,
@@ -41,4 +41,4 @@ class Producer:
             produce_records = self.produce_enrichment('md5', indicator['md5'], [indicator])
             
 
-Producer(topic='intel-hybridanalysis').hybridanalysis()
+# Producer(topic='intel-hybridanalysis').hybridanalysis()
