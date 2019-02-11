@@ -2,7 +2,7 @@ import csv
 import re
 
 class Lookups:
-    def __init__(self, path='./lookups'):
+    def __init__(self, path='../lookups'):
         self.path = path
         self.lookups = {
             'customer': self.read_customer,
