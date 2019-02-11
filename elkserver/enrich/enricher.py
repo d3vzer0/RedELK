@@ -1,5 +1,6 @@
 from kafka import KafkaConsumer, KafkaProducer
 from enrichment import Lookups
+from variables import config
 import json
 import re
 
@@ -33,7 +34,7 @@ class Enrich:
 
 
 class EnrichProducer:
-    def __init__(self, server='localhost:9092', topic='cs-beacons-enriched'):
+    def __init__(self, server=config['kafka']['host'], topic=config['kafka']['produce_topic']):
         self.topic = topic
         self.producer = KafkaProducer(bootstrap_servers=server,
             value_serializer=lambda x: json.dumps(x).encode('utf-8'))
@@ -43,11 +44,11 @@ class EnrichProducer:
         
 
 class EnrichConsumer:
-    def __init__(self, server='localhost:9092'):
+    def __init__(self, server=config['kafka']['host']):
         self.enrichers = Lookups().load()
         self.producer = EnrichProducer()
-        self.consumer = KafkaConsumer('cs-beacons',
-            group_id='consumer-newbeacons-enricher',
+        self.consumer = KafkaConsumer(config['kafka']['consume_topic'],
+            group_id=config['kafka']['group'],
             bootstrap_servers=[server],
             auto_offset_reset='earliest',
             value_deserializer=lambda m: json.loads(m.decode('ascii')))
