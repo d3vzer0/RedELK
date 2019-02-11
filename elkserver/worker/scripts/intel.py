@@ -1,6 +1,7 @@
 from elasticsearch import Elasticsearch
 from kafka import KafkaProducer
 from config_local import api_keys
+import time
 import hashlib
 import redis
 import json
@@ -46,7 +47,8 @@ class Intel:
         self.cache = {
             'virustotal': 3600,
             'greynoise': 3600,
-            'xforce': 3600
+            'xforce': 3600,
+            'hybridanalysis':3600,
         }
 
     def check_cache(self, job, value):
@@ -82,6 +84,18 @@ class Intel:
             self.rserver.set(result['job_id'], json.dumps(result['records']), ex=self.cache['xforce'])
         return result
 
+    def hybridanalysis(self):
+        result = self.check_cache('hybridanalysis-5',  str(self.kwargs['md5']))
+        if not result['records']:
+            url = '{}/hashes'.format(api_keys['hybridanalysis']['url'])
+            headers = {'api-key':api_keys['hybridanalysis']['key'], 'User-Agent':'Falcon Sandbox',
+                'Content-Type':'application/x-www-form-urlencoded'}
+            data = ''.join(['hashes%5B%5D={}'.format(indicator) for indicator in self.kwargs['md5']])
+            hybridanalysis = requests.post(url, headers=headers, data=data).json()
+            result['records'] = hybridanalysis if not 'errorMessage' in hybridanalysis else []
+            self.rserver.set(result['job_id'], json.dumps(result['records']), ex=self.cache['hybridanalysis'])
+        return result
+
 
 class Producer:
     def __init__(self, server='localhost:9092', **kwargs):
@@ -111,5 +125,12 @@ class Producer:
         for indicator in all_indicators:
             records = Intel(md5=indicator).xforce()['records']
             produce_records = self.produce_enrichment('md5', indicator, records)
+    
+    def hybridanalysis(self):
+        all_indicators = ContextFile().get_indicators()
+        records = Intel(md5=all_indicators).hybridanalysis()['records']
+        for indicator in records:
+            produce_records = self.produce_enrichment('md5', indicator['md5'], [indicator])
             
-# Producer(topic='intel-xforce').xforce()
+
+# Producer(topic='intel-hybrid').hybridanalysis()
