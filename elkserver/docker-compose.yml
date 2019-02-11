@@ -58,22 +58,25 @@ services:
       - "./logstash/conf.d:/usr/share/logstash/pipeline"
       - "./logstash/geoip:/usr/share/logstash/GeoLite2-dbs"
 
-  alerting:
-    image: bitsensor/elastalert:latest
+  enricher:
+    build: ./enrich
     links:
       - elasticsearch
+      - kafka
     volumes:
-      - "./alerting/config/config.yaml:/opt/elastalert/config.yaml"
-      - "./alerting/config/config.json:/opt/elastalert-server/config/config.json"
-      - "./alerting/rules:/opt/elastalert/rules"
-      - "./alerting/templates:/opt/elastalert/rule_templates"
+      "/etc/redelk/lookups:/enrich/lookups"
 
-  elkworker:
-    build: ./worker
+ intel:
+    build: ./intel
     links:
       - elasticsearch
-    volumes:
-      - "./etc:/etc/redelk"
+      - kafka
+      - redis_service
+    environment:
+      HAKEY: ""
+      VTKEY: ""
+      XFORCEPASS: "",
+      XFORCEKEY: "",
 
 volumes:
   esdata_node1:
