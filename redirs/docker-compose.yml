@@ -8,6 +8,10 @@ services:
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:6.6.0
+    environment:
+      RIRHOSTNAME: "haproxyhost"
+      KAFKAHOSTS: "localhost:9200"
+      ATTCKSCENARIO: "example_scenario"
     volumes:
       - "proxylogs:/var/log/haproxy"
 

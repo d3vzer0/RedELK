@@ -14,11 +14,11 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 3
 
-name: "@@HOSTNAME@@"
+name: ${RIRHOSTNAME:haproxyhost}
 fields_under_root: true
 fields:
-  attackscenario: @@ATTACKSCENARIO@@
+  attackscenario: ${ATTCKSCENARIO:example_scenario}
 
 output.kafka:
-  hosts:  ["@@HOSTANDPORT@@"]
+  hosts:  ${KAFKAHOSTS}
   topic: 'haproxy'
