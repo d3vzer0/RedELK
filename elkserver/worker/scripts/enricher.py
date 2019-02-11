@@ -33,7 +33,7 @@ class Enrich:
 
 
 class EnrichProducer:
-    def __init__(self, server='localhost:9092', topic='cobaltstrike-newbeacons-enriched'):
+    def __init__(self, server='localhost:9092', topic='cs-beacons-enriched'):
         self.topic = topic
         self.producer = KafkaProducer(bootstrap_servers=server,
             value_serializer=lambda x: json.dumps(x).encode('utf-8'))
@@ -46,7 +46,7 @@ class EnrichConsumer:
     def __init__(self, server='localhost:9092'):
         self.enrichers = Lookups().load()
         self.producer = EnrichProducer()
-        self.consumer = KafkaConsumer('cobaltstrike-newbeacons-logstash',
+        self.consumer = KafkaConsumer('cs-beacons',
             group_id='consumer-newbeacons-enricher',
             bootstrap_servers=[server],
             auto_offset_reset='earliest',
