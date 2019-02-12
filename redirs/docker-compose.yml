@@ -2,9 +2,14 @@ version: '2'
 services:
   haproxy:
     image: haproxy:latest
+    environment:
+      PROXYIP: ""
+      PROXYPORT: 8080
+    ports:
+      - "80:80"
     volumes:
       - "./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
-      - "proxylogs:/var/log"
+    
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:6.6.0
