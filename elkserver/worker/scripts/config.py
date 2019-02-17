@@ -1,20 +1,30 @@
 import os
 
-#### General
 # Verbosity
 Verbosity = os.getenv['VERBOSITY'] 
 
 # interval for rechecking IOC's
-interval = os.getenv['INTERVAL'] 
+interval = os.getenv['INTERVAL']
 
-#### Virustotal API
-vt_apikey = os.getenv['VTKEY']
-
-#### IBM X-Force API (can be retreived from a sample call on their swagger test site)
-ibm_BasicAuth = os.getenv['XFORCEAUTH']
-
-#### HybridAnalysisAPIKEY
-HybridAnalysisAPIKEY = os.getenv['HAKEY']
+#### API
+api_keys = {
+    'virustotal': {
+        'url':  os.getenv['VTURL'],
+        'key':  os.getenv['VTKEY'] 
+    },
+    'greynoise': {
+        'url':  os.getenv['GREYURL'] ,
+    },
+    'xforce': {
+        'url': os.getenv['XFORCEURL'] ,
+        'key': os.getenv['XFORCEKEY'] ,
+        'password': os.getenv['XFORCEPASS'] 
+    },
+    'hybridanalysis': {
+        'url': os.getenv['HAURL'] ,
+        'key': os.getenv['HAKEY'] 
+    }
+}
 
 #### SMTP settings
 smtpSrv= os.getenv['SMTPIP']
