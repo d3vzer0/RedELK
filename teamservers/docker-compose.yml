@@ -1,11 +1,12 @@
 version: '2'
 services:
-  nginx:
-    image: nginx:latest
+  teamserver:
+    build: ./cobaltstrike
+    environment:
+      - TS_IP: "127.0.0.1"
+      - TS_PASSWORD: ""
     volumes:
-      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
-    ports:
-      - "8080:8080"
+      - "<path_to_cobaltstrike>:/opt/cobaltstrike"
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:6.6.0
