@@ -12,8 +12,6 @@ services:
       TS_PASSWORD: ""
     volumes:
       - "/opt/your_cs_dir:/opt/cobaltstrike"
-    ports:
-      - "50050:50050"
 
   haproxy:
     build: ./haproxy
@@ -25,6 +23,7 @@ services:
       PROXYPORT: 80
     ports:
       - "8080:8080"
+      - "9090:9090"
     volumes:
       - "./haproxy:/etc/haproxy"
 
