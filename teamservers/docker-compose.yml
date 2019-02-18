@@ -3,16 +3,24 @@ services:
   teamserver:
     build: ./cobaltstrike
     environment:
-      - TS_IP: "127.0.0.1"
-      - TS_PASSWORD: ""
+      TS_IP: "127.0.0.1"
+      TS_PASSWORD: ""
     volumes:
-      - "<path_to_cobaltstrike>:/opt/cobaltstrike"
+      - "./opt/your_cs_dir:/opt/cobaltstrike"
+
+  haproxy:
+    build: ./haproxy
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - "./haproxy:/etc/haproxy"
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:6.6.0
     volumes:
       - "./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
-      - "/opt/cobaltstrike/cobaltstrike/logs:/root/cobaltstrike/logs"
+      - "/opt/your_cs_dir/logs:/root/cobaltstrike/logs"
     environment:
       CSHOSTNAME: "csteamserver"
       KAFKAHOSTS: "localhost:9200"
