@@ -2,6 +2,9 @@ version: '2'
 services:
   teamserver:
     build: ./cobaltstrike
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     links: 
       - haproxy
     environment:
@@ -34,3 +37,8 @@ services:
       CSHOSTNAME: "csteamserver"
       KAFKAHOSTS: "localhost:9200"
       ATTCKSCENARIO: "example_scenario"
+
+
+networks:
+  proxynetwork:
+  csnetwork:
