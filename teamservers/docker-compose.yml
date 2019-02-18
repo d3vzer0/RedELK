@@ -2,17 +2,26 @@ version: '2'
 services:
   teamserver:
     build: ./cobaltstrike
+    links: 
+      - haproxy
     environment:
       TS_IP: "127.0.0.1"
       TS_PASSWORD: ""
     volumes:
-      - "./opt/your_cs_dir:/opt/cobaltstrike"
+      - "/opt/your_cs_dir:/opt/cobaltstrike"
+    ports:
+      - "50050:50050"
 
   haproxy:
     build: ./haproxy
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    environment:
+      PROXYIP: "teamserver"
+      PROXYPORT: 80
+    ports:
+      - "8080:8080"
     volumes:
       - "./haproxy:/etc/haproxy"
 
