@@ -8,4 +8,5 @@ ARG TS_PASSWORD=you_should_change_this
 ENV TS_PASSWORD="${TS_PASSWORD}"
 
 # Run teamserver with default variables
-CMD /opt/cobaltstrike/teamserver ${TS_IP} ${TS_PASSWORD}
+WORKDIR /opt/cobaltstrike
+CMD ./teamserver ${TS_IP} ${TS_PASSWORD}
