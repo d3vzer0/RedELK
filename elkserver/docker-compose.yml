@@ -78,6 +78,14 @@ services:
       XFORCEPASS: "",
       XFORCEKEY: "",
 
+  filesync:
+    build: ./filesync
+    volumes:
+      - "./filesync/authorized_keys:/home/scponly/.ssh/authorized_keys"
+      - "/var/www/html/:/var/www/html/"
+    ports:
+      - "2222:22"
+
 volumes:
   esdata_node1:
     driver: local

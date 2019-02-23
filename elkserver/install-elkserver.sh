@@ -28,30 +28,6 @@ fi
 cd $CWD
 
 
-echo "Installing Kibana template"
-curl -X POST "http://localhost:5601/api/saved_objects/_bulk_create" -H 'kbn-xsrf: true' -H "Content-Type: application/json" -d @./templates/redelk_kibana_all.json >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not install Kibana template (Error Code: $ERROR)."
-fi
-
-# setting default index to d76c6b70-b617-11e8-bc1a-cf8fa3255855 == rtops-*
-echo "Setting the Kibana default index"
-curl -X POST "http://localhost:5601/api/kibana/settings/defaultIndex" -H "Content-Type: application/json" -H "kbn-xsrf: true" -d"{\"value\":\"d76c6b70-b617-11e8-bc1a-cf8fa3255855\"}" >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not set the default index for Kibana (Error Code: $ERROR)."
-fi
-
-
-echo "Installing GeoIP index template adjustment"
-curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/redirhaproxy- -d@./templates/elasticsearch-template-geoip-es6x.json >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not install GeoIP index template adjust (Error Code: $ERROR)."
-fi
-
-
 # Change behaviour to overwrite docker-based kibana logo
 # echo "Inserting the superawesomesauce RedELK logo into Kibana"
 # cp /usr/share/kibana/optimize/bundles/commons.style.css /usr/share/kibana/optimize/bundles/commons.style.css.ori && cp ./kibana/* /usr/share/kibana/optimize/bundles/ >> $LOGFILE 2>&1
