@@ -29,8 +29,8 @@ if [  ! -f $1 ];then
     exit 1
 fi >> $LOGFILE 2>&1
 
-echo "Creating certs dir if necessary"
-if [ ! -d "./certs" ]; then
+echo "Creating dist dir if necessary"
+if [ ! -d "./dist" ]; then
     mkdir ./certs
 fi >> $LOGFILE 2>&1
 ERROR=$?
@@ -38,18 +38,33 @@ if [ $ERROR -ne 0 ]; then
     echoerror " Could not create ./certs directory (Error Code: $ERROR)."
 fi
 
+
+echo "Creating certs dir if necessary"
+if [ ! -d "./dist/certs" ]; then
+    mkdir ./dist/certs
+fi >> $LOGFILE 2>&1
+ERROR=$?
+if [ $ERROR -ne 0 ]; then
+    echoerror " Could not create ./certs directory (Error Code: $ERROR)."
+fi
+
 echo "Generating private key for CA"
-if [ ! -f "./certs/redelkCA.key" ]; then 
-    openssl genrsa -out ./certs/redelkCA.key 2048 
+if [ ! -f "./dist/certs/redelkCA.key" ]; then 
+    openssl genrsa -out ./dist/certs/redelkCA.key 2048 
 fi  >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
     echoerror "Could not generate private key for CA (Error Code: $ERROR)."
 fi
 
+echo "Copying core projects to dist directory"
+cp -r ./elkserver ./dist/ >> $LOGFILE 2>&1
+cp -r ./teamservers ./dist/ >> $LOGFILE 2>&1
+cp -r ./redirs ./dist/ >> $LOGFILE 2>&1
+
 echo "Creating Certificate Authority"
-if [ ! -f "./certs/redelkCA.crt" ]; then
-    openssl req -new -x509 -days 3650 -nodes -key ./certs/redelkCA.key -sha256 -out ./certs/redelkCA.crt -extensions v3_ca -config $1
+if [ ! -f "./dist/certs/redelkCA.crt" ]; then
+    openssl req -new -x509 -days 3650 -nodes -key ./dist/certs/redelkCA.key -sha256 -out ./dist/certs/redelkCA.crt -extensions v3_ca -config $1
 fi  >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -58,8 +73,8 @@ fi
 
 
 echo "Generating private key for ELK server"
-if [ ! -f "./certs/elkserver.key" ]; then
-    openssl genrsa -out ./certs/elkserver.key 2048
+if [ ! -f "./dist/certs/elkserver.key" ]; then
+    openssl genrsa -out ./dist/certs/elkserver.key 2048
 fi  >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -67,9 +82,8 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Generating certificate for ELK server"
-#if !  [ -f "./certs/elkserver.key" ] || [ -f "./certs/elkserver.csr" ]; then
-if [ ! -f "./certs/elkserver.csr" ]; then
-    openssl req -sha512 -new -key ./certs/elkserver.key -out ./certs/elkserver.csr -config $1
+if [ ! -f "./dist/certs/elkserver.csr" ]; then
+    openssl req -sha512 -new -key ./dist/certs/elkserver.key -out ./dist/certs/elkserver.csr -config $1
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -77,9 +91,8 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Signing certificate of ELK server with our new CA"
-if [ ! -f "./certs/elkserver.crt" ]; then
-    openssl x509 -days 3650 -req -sha512 -in ./certs/elkserver.csr -CAcreateserial -CA ./certs/redelkCA.crt -CAkey ./certs/redelkCA.key -out ./certs/elkserver.crt -extensions v3_req -extfile $1
-    #openssl x509 -req -extfile $1 -extensions v3_req -days 3650 -in ./certs/elkserver.csr -CA ./certs/redelkCA.crt -CAkey ./certs/redelkCA.key -CAcreateserial -out ./certs/elkserver.crt
+if [ ! -f "./dist/certs/elkserver.crt" ]; then
+    openssl x509 -days 3650 -req -sha512 -in ./dist/certs/elkserver.csr -CAcreateserial -CA ./dist/certs/redelkCA.crt -CAkey ./dist/certs/redelkCA.key -out ./dist/certs/elkserver.crt -extensions v3_req -extfile $1
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -87,8 +100,8 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Converting ELK server private key to PKCS8 format"
-if [ ! -f "./certs/elkserver.key.pem" ]; then
-    cp ./certs/elkserver.key ./certs/elkserver.key.pem && openssl pkcs8 -in ./certs/elkserver.key.pem -topk8 -nocrypt -out ./certs/elkserver.key
+if [ ! -f "./dist/certs/elkserver.key.pem" ]; then
+    cp ./dist/certs/elkserver.key ./dist/certs/elkserver.key.pem && openssl pkcs8 -in ./dist/certs/elkserver.key.pem -topk8 -nocrypt -out ./dist/certs/elkserver.key
 fi  >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -96,13 +109,13 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Copying certificates to relevant redir and teamserver folders."
-cp -r ./certs ./elkserver/logstash/ >> $LOGFILE 2>&1
-cp ./certs/redelkCA.crt ./teamservers/filebeat/ >> $LOGFILE 2>&1
-cp ./certs/redelkCA.crt ./redirs/filebeat/ >> $LOGFILE 2>&1
+cp -r ./dist/certs ./dist/elkserver/logstash/ >> $LOGFILE 2>&1
+cp ./dist/certs/redelkCA.crt ./dist/teamservers/filebeat/ >> $LOGFILE 2>&1
+cp ./dist/certs/redelkCA.crt ./dist/redirs/filebeat/ >> $LOGFILE 2>&1
 
 echo "Creating ssh directories if necessary"
-if [ ! -d "./sshkey" ] || [ ! -d "./elkserver/ssh" ] || [ ! -d "./teamservers/ssh" ]; then
-    mkdir -p ./sshkey && mkdir -p ./teamservers/ssh && mkdir -p ./elkserver/ssh
+if [ ! -d "./dist/sshkey" ] || [ ! -d "./dist/elkserver/ssh" ] || [ ! -d "./dist/teamservers/ssh" ]; then
+    mkdir -p ./dist/sshkey && mkdir -p ./dist/teamservers/ssh && mkdir -p ./dist/elkserver/ssh
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -110,8 +123,8 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Generating SSH key pair for scponly user"
-if [ ! -f "./sshkey/id_rsa" ] ||  [ ! -f "sshkey/id_rsa.pub" ]; then
-    ssh-keygen -t rsa -f "./sshkey/id_rsa" -P ""
+if [ ! -f "./dist/sshkey/id_rsa" ] ||  [ ! -f "./dist/sshkey/id_rsa.pub" ]; then
+    ssh-keygen -t rsa -f "./dist/sshkey/id_rsa" -P ""
 fi >> $LOGFILE 2>&1 
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -119,27 +132,27 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Copying sshkeys to relevant folders."
-cp ./sshkey/id_rsa.pub ./teamservers/ssh/id_rsa.pub >> $LOGFILE 2>&1
-cp ./sshkey/id_rsa.pub ./elkserver/ssh/id_rsa.pub >> $LOGFILE 2>&1
-cp ./sshkey/id_rsa ./elkserver/ssh/id_rsa >> $LOGFILE 2>&1
+cp ./dist/sshkey/id_rsa.pub ./dist/teamservers/ssh/id_rsa.pub >> $LOGFILE 2>&1
+cp ./dist/sshkey/id_rsa.pub ./dist/elkserver/ssh/id_rsa.pub >> $LOGFILE 2>&1
+cp ./dist/sshkey/id_rsa ./dist/elkserver/ssh/id_rsa >> $LOGFILE 2>&1
 
 echo "Creating TGZ packages for easy distribution"
-if [ ! -f "./elkserver.tgz" ]; then
-    tar zcvf elkserver.tgz elkserver/
+if [ ! -f "./dist/elkserver.tgz" ]; then
+    tar zcvf ./dist/elkserver.tgz ./dist/elkserver/
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
     echoerror "Could not TGZ for elkserver directory (Error Code: $ERROR)."
 fi
-if [ ! -f "./redirs.tgz" ]; then
-    tar zcvf redirs.tgz redirs/
+if [ ! -f "./dist/redirs.tgz" ]; then
+    tar zcvf ./dist/redirs.tgz ./dist/redirs/
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
     echoerror "Could not TGZ for redirs directory (Error Code: $ERROR)."
 fi
-if [ ! -f "./teamservers.tgz" ]; then
-    tar zcvf teamservers.tgz teamservers/
+if [ ! -f "./dist/teamservers.tgz" ]; then
+    tar zcvf ./dist/teamservers.tgz ./dist/teamservers/
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
