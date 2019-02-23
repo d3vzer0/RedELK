@@ -64,9 +64,9 @@ services:
       - elasticsearch
       - kafka
     volumes:
-      "/etc/redelk/lookups:/enrich/lookups"
+      - "/etc/redelk/lookups:/enrich/lookups"
 
- intel:
+  intel:
     build: ./intel
     links:
       - elasticsearch
@@ -75,14 +75,14 @@ services:
     environment:
       HAKEY: ""
       VTKEY: ""
-      XFORCEPASS: "",
-      XFORCEKEY: "",
+      XFORCEPASS: ""
+      XFORCEKEY: ""
 
   filesync:
     build: ./filesync
     volumes:
       - "./filesync/authorized_keys:/home/scponly/.ssh/authorized_keys"
-      - "/var/www/html/:/var/www/html/"
+      - "./nginx/html/:/var/www/html/"
     ports:
       - "2222:22"
 
