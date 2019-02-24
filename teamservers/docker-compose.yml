@@ -19,8 +19,9 @@ services:
       - NET_ADMIN
       - NET_RAW
     environment:
-      PROXYIP: "teamserver"
-      PROXYPORT: 80
+      TSIP: "teamserver"
+      TSPORT: 80
+      ADMINPORT: 50050
     ports:
       - "8080:8080"
       - "9090:9090"
@@ -36,6 +37,11 @@ services:
       CSHOSTNAME: "csteamserver"
       KAFKAHOSTS: "localhost:9200"
       ATTCKSCENARIO: "example_scenario"
+
+  lsync:
+    build: ./lsync
+    volume:
+      - "/opt/cobaltstrike/logs/"
 
 
 networks:
