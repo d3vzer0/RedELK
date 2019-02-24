@@ -1,0 +1,11 @@
+hostname: rlk-kelk-01
+ansible_host: &mgt_addr 10.10.10.2  # Replace  example IP
+
+firewall:
+  defaults:
+    - direction: incoming
+      policy: allow
+  rules:
+    - rule: allow
+      to_port: 22
+      protocol: tcp

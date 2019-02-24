@@ -1,0 +1,11 @@
+hostname: rlk-tsrv-01
+ansible_host: &mgt_addr 192.168.1.131
+
+firewall:
+  defaults:
+    - direction: incoming
+      policy: allow
+  rules:
+    - rule: allow
+      to_port: 22
+      protocol: tcp
