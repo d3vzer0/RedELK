@@ -1,0 +1,6 @@
+- hosts: all
+  become: yes
+  roles:
+    - { role: generic, tags: ['generic'] }
+    - { role: firewall, tags: ['firewall'] }
+    - { role: docker, tags: ['docker'], when: "'docker' in group_names" }

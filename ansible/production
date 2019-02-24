@@ -1,0 +1,13 @@
+[docker:children]
+backend
+analytics
+relay
+
+[backend]
+rlk-tsrv-01
+
+[analytics]
+rlk-kelk-01
+
+[relay]
+rlk-prox-01
