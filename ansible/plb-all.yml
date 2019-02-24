@@ -4,3 +4,19 @@
     - { role: generic, tags: ['generic'] }
     - { role: firewall, tags: ['firewall'] }
     - { role: docker, tags: ['docker'], when: "'docker' in group_names" }
+
+- hosts: relay
+  become: yes
+  roles:
+    - { role: relay, tags: ['relay'], when: "'relay' in group_names" }
+
+- hosts: analytics
+  become: yes
+  roles:
+    - { role: elkserver, tags: ['elkserver'], when: "'analytics' in group_names" }
+
+
+- hosts: backend
+  become: yes
+  roles:
+    - { role: teamserver, tags: ['teamserver'], when: "'backend' in group_names" }
