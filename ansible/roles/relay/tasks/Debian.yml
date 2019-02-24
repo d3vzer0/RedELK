@@ -1,0 +1,4 @@
+- name: Copy Docker relay project to target server
+  copy: 
+    src: ../dist/redirs
+    dest: "{{ redirs_dir }}"

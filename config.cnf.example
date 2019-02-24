@@ -1,0 +1,28 @@
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = MODIFYME, for example NL
+ST = MODIFYME, for example Noord-Holland
+L = MODIFYME, for example Amsterdam
+O = MODIFYME, for example Outflank B.V.
+OU = MODIFYME, for example IT-OPS
+CN = MODIFYME, for example outflank.nl
+emailAddress = MODIFYME, for example totallynotavirus@outflank.nl
+
+[v3_ca]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints = CA:TRUE
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = dnsnameofyourredelkserver
+DNS.2 = someseconddnsname
+IP.1 = 123.123.123.123

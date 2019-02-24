@@ -31,7 +31,7 @@ fi >> $LOGFILE 2>&1
 
 echo "Creating dist dir if necessary"
 if [ ! -d "./dist" ]; then
-    mkdir ./certs
+    mkdir ./dist/certs
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
@@ -135,30 +135,8 @@ echo "Copying sshkeys to relevant folders."
 cp ./dist/sshkey/id_rsa.pub ./dist/elkserver/filesync/authorized_keys >> $LOGFILE 2>&1
 cp ./dist/sshkey/id_rsa ./dist/teamservers/lsync/id_rsa >> $LOGFILE 2>&1
 
-echo "Creating TGZ packages for easy distribution"
-if [ ! -f "./dist/elkserver.tgz" ]; then
-    tar zcvf ./dist/elkserver.tgz ./dist/elkserver/
-fi >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not TGZ for elkserver directory (Error Code: $ERROR)."
-fi
-if [ ! -f "./dist/redirs.tgz" ]; then
-    tar zcvf ./dist/redirs.tgz ./dist/redirs/
-fi >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not TGZ for redirs directory (Error Code: $ERROR)."
-fi
-if [ ! -f "./dist/teamservers.tgz" ]; then
-    tar zcvf ./dist/teamservers.tgz ./dist/teamservers/
-fi >> $LOGFILE 2>&1
-ERROR=$?
-if [ $ERROR -ne 0 ]; then
-    echoerror "Could not TGZ for teamserver directory (Error Code: $ERROR)."
-fi
 
-grep -i error $LOGFILE 2>$1
+grep -i error $LOGFILE 2>/dev/null
 ERROR=$?
 if [ $ERROR -eq 0 ]; then
     echo "[X] There were errors while running this installer. Manually check the log file $LOGFILE. Exiting now."

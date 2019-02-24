@@ -1,0 +1,4 @@
+- name: Copy Docker elkserver project to target server
+  copy: 
+    src: ../dist/elkserver
+    dest: "{{ elkserver_dir }}"

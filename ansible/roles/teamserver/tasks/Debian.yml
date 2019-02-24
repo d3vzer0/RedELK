@@ -1,0 +1,4 @@
+- name: Copy Docker teamservers project to target server
+  copy: 
+    src: ../dist/teamservers
+    dest: "{{ teamservers_dir }}"
