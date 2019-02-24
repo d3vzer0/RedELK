@@ -132,9 +132,8 @@ if [ $ERROR -ne 0 ]; then
 fi
 
 echo "Copying sshkeys to relevant folders."
-cp ./dist/sshkey/id_rsa.pub ./dist/teamservers/ssh/id_rsa.pub >> $LOGFILE 2>&1
-cp ./dist/sshkey/id_rsa.pub ./dist/elkserver/ssh/id_rsa.pub >> $LOGFILE 2>&1
-cp ./dist/sshkey/id_rsa ./dist/elkserver/ssh/id_rsa >> $LOGFILE 2>&1
+cp ./dist/sshkey/id_rsa.pub ./dist/elkserver/filesync/authorized_keys >> $LOGFILE 2>&1
+cp ./dist/sshkey/id_rsa ./dist/teamservers/lsync/id_rsa >> $LOGFILE 2>&1
 
 echo "Creating TGZ packages for easy distribution"
 if [ ! -f "./dist/elkserver.tgz" ]; then
