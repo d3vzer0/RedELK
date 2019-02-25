@@ -16,4 +16,5 @@ ENV TS_PASSWORD="${TS_PASSWORD}"
 
 # Run teamserver with default variables
 WORKDIR /opt/cobaltstrike
+RUN chmod +x ./teamserver
 CMD /root/set_gateway.sh && ./teamserver ${TS_IP} ${TS_PASSWORD}
