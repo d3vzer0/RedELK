@@ -1,0 +1,2 @@
+kafka_host: "10.10.10.4:9200"
+campaign_name: "example_campaign"

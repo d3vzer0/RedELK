@@ -1,6 +1,11 @@
 hostname: rlk-prox-01
 ansible_host: &mgt_addr 10.10.10.3  # Replace  example IP
 
+relay_settings:
+  forward_to_ip: "10.10.10.2"
+  forward_to_port: 8080
+  listen_port: 80
+
 firewall:
   defaults:
     - direction: incoming
@@ -8,4 +13,7 @@ firewall:
   rules:
     - rule: allow
       to_port: 22
+      protocol: tcp
+    - rule: allow
+      to_port: 80
       protocol: tcp

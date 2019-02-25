@@ -1,4 +1,4 @@
-[docker:children]
+[redelk:children]
 backend
 analytics
 relay
@@ -11,3 +11,5 @@ rlk-kelk-01
 
 [relay]
 rlk-prox-01
+
+

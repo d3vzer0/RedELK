@@ -3,7 +3,7 @@
   roles:
     - { role: generic, tags: ['generic'] }
     - { role: firewall, tags: ['firewall'] }
-    - { role: docker, tags: ['docker'], when: "'docker' in group_names" }
+    - { role: docker, tags: ['docker'], when: "'redelk' in group_names" }
 
 - hosts: relay
   become: yes

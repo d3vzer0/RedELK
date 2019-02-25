@@ -1,0 +1,4 @@
+- hosts: relay
+  become: yes
+  roles:
+    - { role: relay, tags: ['relay'], when: "'relay' in group_names" }

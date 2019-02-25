@@ -1,5 +1,14 @@
 hostname: rlk-tsrv-01
-ansible_host: &mgt_addr 192.168.1.131
+ansible_host: &mgt_addr 10.10.10.4 # Replace  example IP
+cobaltstrike_src_dir: "/tmp/cobaltstrike/"
+
+teamserver_settings:
+  ts_listener_address: "10.10.10.1"
+  ts_listener_port: "80"
+  ts_password: "replace_with_ansible_vault" # !vault | <key>
+
+prox_settings:
+  listen_port: "8080"
 
 firewall:
   defaults:

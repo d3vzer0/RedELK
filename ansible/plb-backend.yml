@@ -1,0 +1,4 @@
+- hosts: backend
+  become: yes
+  roles:
+    - { role: teamserver, tags: ['teamserver'], when: "'backend' in group_names" }
