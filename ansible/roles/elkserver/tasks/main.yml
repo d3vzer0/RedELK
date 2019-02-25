@@ -128,3 +128,54 @@
       - "{{ elkserver_dir }}/logstash/conf.d:/usr/share/logstash/pipeline"
 
 
+- name: Build enricher container
+  docker_image:
+    name: redelk/enricher
+    path: "{{ elkserver_dir }}/enrich"
+    force: yes
+  
+
+- name: Run enricher container
+  docker_container:
+    name: enricher
+    image: redelk/enricher
+    state: started
+    recreate: yes
+    networks:
+      - name: analytics_network
+        aliases:
+          - enricher
+        links:
+          - elasticsearch
+          - kafka
+    volumes:
+      - "{{ elkserver_dir }}/lookups:/enrich/lookups"
+
+
+- name: Build intel container
+  docker_image:
+    name: redelk/intel
+    path: "{{ elkserver_dir }}/intel"
+    force: yes
+  
+
+- name: Run intel container
+  docker_container:
+    name: intel
+    image: redelk/intel
+    state: started
+    recreate: yes
+    networks:
+      - name: analytics_network
+        aliases:
+          - intel
+        links:
+          - elasticsearch
+          - kafka
+          - redis_service
+    env:
+      HAKEY: "{{ intel_settings.hakey }}"
+      VTKEY: "{{ intel_settings.vtkey }}"
+      XFORCEPASS: "{{ intel_settings.xforcepass }}"
+      XFORCEKEY: "{{ intel_settings.xforcekey }}"
+

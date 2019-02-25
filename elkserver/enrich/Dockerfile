@@ -4,7 +4,7 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Infra variables
-ARG KAFKA_HOST=kafka:9092
+ARG KAFKA_HOST=kafka:29092
 ENV KAFKA_HOST="${KAFKA_HOST}"
 
 ARG ELASTIC_HOST=elasticsearch:9200

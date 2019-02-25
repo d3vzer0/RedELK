@@ -1,6 +1,13 @@
 hostname: rlk-kelk-01
 ansible_host: &mgt_addr 10.10.10.2  # Replace  example IP
 
+intel_settings:
+  hakey: ""
+  vtkey: ""
+  xforcepass: ""
+  xforcekey: ""
+
+
 firewall:
   defaults:
     - direction: incoming
