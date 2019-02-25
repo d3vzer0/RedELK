@@ -31,11 +31,11 @@ fi >> $LOGFILE 2>&1
 
 echo "Creating dist dir if necessary"
 if [ ! -d "./dist" ]; then
-    mkdir ./dist/certs
+    mkdir ./dist
 fi >> $LOGFILE 2>&1
 ERROR=$?
 if [ $ERROR -ne 0 ]; then
-    echoerror " Could not create ./certs directory (Error Code: $ERROR)."
+    echoerror " Could not create ./dist directory (Error Code: $ERROR)."
 fi
 
 

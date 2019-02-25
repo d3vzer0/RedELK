@@ -1,2 +1,81 @@
-- name: include distribution specific install
-  include: "{{ ansible_distribution }}.yml"
+- name: Copy Docker teamservers project to target server
+  copy: 
+    src: ../dist/teamservers/
+    dest: "{{ teamservers_dir }}"
+
+- name: Enable TPROX kernel module for PROXY protocol
+  modprobe:
+    name: xt_TPROXY
+    state: present
+
+- name: Copy Cobalt Strike package to server
+  copy: 
+    src: "{{ cobaltstrike_src_dir }}"
+    dest: "{{ cobaltstrike_dir }}"
+
+- name: Build Teamserver container
+  docker_image:
+    name: redelk/cobaltstrike
+    path: "{{ teamservers_dir }}/cobaltstrike"
+  
+- name: Build HAproxy container
+  docker_image:
+    name: redelk/haproxy
+    path: "{{ teamservers_dir }}/haproxy"
+
+- name: Create custom docker network for our PROX setup
+  docker_network:
+    name: c2_network
+
+- name: Run Haproxy container
+  docker_container:
+    name: haproxy
+    image: redelk/haproxy
+    state: started 
+    recreate: yes
+    capabilities:
+      - NET_ADMIN
+      - NET_RAW
+    env:
+      TSIP: "teamserver"
+      TSPORT: "{{ teamserver_settings.ts_listener_port }}"
+      ADMINPORT: "50050"
+    volumes:
+      - "{{ teamservers_dir }}/haproxy:/etc/haproxy"
+
+    networks:
+      - name: "c2_network"
+        aliases:
+          - haproxy
+        links:
+          - teamserver
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+
+
+- name: Run Teamserver container
+  docker_container:
+    name: teamserver
+    image: redelk/cobaltstrike
+    state: started
+    recreate: yes
+    capabilities:
+      - NET_ADMIN
+      - NET_RAW
+    env:
+      TS_IP: "{{ teamserver_settings.ts_listener_address }}"
+      TS_PASSWORD: "{{ teamserver_settings.ts_password }}"
+    networks:
+      - name: "c2_network"
+        aliases:
+          - teamserver
+        links:
+          - haproxy
+    volumes:
+      - "{{ cobaltstrike_dir }}:/opt/cobaltstrike"
+
+
+
+  
+

@@ -1,2 +1,11 @@
-- name: include distribution specific install
-  include: "{{ ansible_distribution }}.yml"
+- name: Copy Docker elkserver project to target server
+  copy: 
+    src: ../dist/elkserver/
+    dest: "{{ elkserver_dir }}"
+
+- name: Set sysctl map count for Elasticsearch
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+    reload: yes

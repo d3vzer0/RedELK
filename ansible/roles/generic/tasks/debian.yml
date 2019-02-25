@@ -4,11 +4,5 @@
 
 - name: Installing Minimal required packages
   apt:
-    name: "{{ item }}"
+    name: ["git", "vim", "python-pip", "ufw"]
     state: present
-  with_items:
-    - 'git'
-    - 'vim'
-    - 'python-pip'
-    - 'ufw'
-

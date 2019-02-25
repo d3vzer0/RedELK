@@ -1,2 +1,27 @@
-- name: include distribution specific install
-  include: "{{ ansible_distribution }}.yml"
+- name: Copy Docker relay project to target server
+  copy: 
+    src: ../dist/redirs/
+    dest: "{{ redirs_dir }}"
+
+- name: Run HAProxy container
+  docker_container:
+    name: haproxy
+    image: haproxy:latest
+    env:
+      PROXYIP: "{{ relay_settings.forward_to_ip }}"
+      PROXYPORT: "{{ relay_settings.forward_to_port }}"
+    ports:
+      - "{{ relay_settings.listen_port}}:80"
+    volumes:
+      - "{{ redirs_dir }}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+
+- name: Run Filebeat container
+  docker_container:
+    name: filebeat
+    image: docker.elastic.co/beats/filebeat:6.6.0
+    env:
+      RIRHOSTNAME: "haproxyhost"
+      KAFKAHOSTS: "{{ kafka_host }}"
+      ATTCKSCENARIO: "{{ campaign_name }}"
+    volumes:
+      - "proxylogs:/var/log/haproxy"
