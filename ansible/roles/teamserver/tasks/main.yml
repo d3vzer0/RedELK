@@ -17,11 +17,13 @@
   docker_image:
     name: redelk/cobaltstrike
     path: "{{ teamservers_dir }}/cobaltstrike"
+    force: yes
   
 - name: Build HAproxy container
   docker_image:
     name: redelk/haproxy
     path: "{{ teamservers_dir }}/haproxy"
+    force: yes
 
 - name: Create custom docker network for our PROX setup
   docker_network:
