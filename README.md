@@ -15,7 +15,15 @@ Here's a conceptual overview of how RedELK works.
 
 ![](./images/redelk_overview.png)
 
+# Howto WIP:
+1. Clone the repository and modify the config.cnf.example file with custom values for your certificate. Rename it to config.cnf afterwards.
+2. Execute ./install-setup.sh config.cnf
+3. Navigate to the ansible directory and configure your host variables in:
+    - host_vars/rlk-kelk-01.yml: The ELK instance configuration for RedELK
+    - host_vars/rlk-prox-01.yml: The relay instance configuration for RedELK
+    - host_vars/rlk-tsrv-01.yml: The cobaltstrike/PROX configuration for RedELK
 
+3. Run plb-all.yml playbook if this is your first setup. Ex: ansible-playbook -i production plb-all.yml --user <username> --ask-pass --become-method=su --ask-become-pass
 
 # Authors and contribution #
 This project is developed and maintained by:
