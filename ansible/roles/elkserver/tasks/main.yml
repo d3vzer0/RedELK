@@ -3,9 +3,99 @@
     src: ../dist/elkserver/
     dest: "{{ elkserver_dir }}"
 
+
 - name: Set sysctl map count for Elasticsearch
   sysctl:
     name: vm.max_map_count
     value: 262144
     state: present
     reload: yes
+
+
+- name: Add persistent Elastic (node1) data volume
+  docker_volume:
+    name: esdata_node1
+    state: present
+
+
+- name: Add persistent Kafka (node1) data volume
+  docker_volume:
+    name: kafkadata_node1
+    state: present
+
+
+- name: Run Redis container
+  docker_container:
+    name: redis_service
+    image: redis
+    state: started 
+
+
+- name: Run zookeeper
+  docker_Ccontainer:
+    name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    state: started                                                
+    env:                                                                                 
+      ZOOKEEPER_CLIENT_PORT: 2181    
+
+
+- name: Run Kafka container
+  docker_container:
+    name: kafka
+    image: confluentinc/cp-kafka:latest
+    state: started 
+    env:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+
+- name: Run Elastic container
+  docker_container:
+    name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    state: started 
+    env:
+      - cluster.name=redelk-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+   volumes:
+      - esdata_node1:/usr/share/elasticsearch/data
+    ports:
+      - "127.0.0.1:9200:9200"
+  
+
+- name: Run Kibana container
+  docker_container:
+    name: kibana
+    image: docker.elastic.co/kibana/kibana:6.6.0
+    state: started 
+    env:
+      SERVER_NAME: "redelk-kibana"
+      ELASTICSEARCH_HOSTS: "elasticsearch:9200"
+      SERVER_HOST: "0.0.0.0"
+    ports:
+      - "5601:5601"
+
+
+- name: Run logstash container
+  docker_container:
+    name: logstash
+    image: docker.elastic.co/logstash/logstash:6.6.0
+    state: started
+    volumes:
+      - "{{ elkserver_dir }}/logstash/conf.d:/usr/share/logstash/pipeline"
+      # - "./logstash/geoip:/usr/share/logstash/GeoLite2-dbs"
+
+
