@@ -1,12 +1,13 @@
 - name: Copy Docker relay project to target server
   copy: 
     src: ../dist/redirs/
-    dest: "{{ redirs_dir }}"
+    dest: "{{ redirs_dir }}/"
 
 - name: Run HAProxy container
   docker_container:
     name: haproxy
     image: haproxy:latest
+    recreate: yes
     env:
       PROXYIP: "{{ relay_settings.forward_to_ip }}"
       PROXYPORT: "{{ relay_settings.forward_to_port }}"
@@ -19,9 +20,13 @@
   docker_container:
     name: filebeat
     image: docker.elastic.co/beats/filebeat:6.6.0
+    recreate: yes
+    user: root
     env:
       RIRHOSTNAME: "haproxyhost"
       KAFKAHOSTS: "{{ kafka_host }}"
       ATTCKSCENARIO: "{{ campaign_name }}"
     volumes:
-      - "proxylogs:/var/log/haproxy"
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ redirs_dir }}/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
