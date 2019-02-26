@@ -9,10 +9,11 @@
     image: haproxy:latest
     recreate: yes
     env:
-      PROXYIP: "{{ relay_settings.forward_to_ip }}"
-      PROXYPORT: "{{ relay_settings.forward_to_port }}"
+      LISTEN_ON_PORT: "{{ relay_settings.listen_on_port }}"
+      FORWARD_TO_IP: "{{ relay_settings.forward_to_ip }}"
+      FORWARD_TO_PORT: "{{ relay_settings.forward_to_port }}"
     ports:
-      - "{{ relay_settings.listen_port}}:80"
+      - "{{ relay_settings.listen_on_port}}:{{ relay_settings.listen_on_port }}"
     volumes:
       - "{{ redirs_dir }}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
 
@@ -30,3 +31,4 @@
       - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ redirs_dir }}/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+
