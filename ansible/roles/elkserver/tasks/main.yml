@@ -63,7 +63,7 @@
     env:
       KAFKA_BROKER_ID: "1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://{{ kafka_ip }}:{{ kafka_port }}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
@@ -159,23 +159,23 @@
     force: yes
   
 
-- name: Run intel container
-  docker_container:
-    name: intel
-    image: redelk/intel
-    state: started
-    recreate: yes
-    networks:
-      - name: analytics_network
-        aliases:
-          - intel
-        links:
-          - elasticsearch
-          - kafka
-          - redis_service
-    env:
-      HAKEY: "{{ intel_settings.hakey }}"
-      VTKEY: "{{ intel_settings.vtkey }}"
-      XFORCEPASS: "{{ intel_settings.xforcepass }}"
-      XFORCEKEY: "{{ intel_settings.xforcekey }}"
+# - name: Run intel container
+#   docker_container:
+#     name: intel
+#     image: redelk/intel
+#     state: started
+#     recreate: yes
+#     networks:
+#       - name: analytics_network
+#         aliases:
+#           - intel
+#         links:
+#           - elasticsearch
+#           - kafka
+#           - redis_service
+#     env:
+#       HAKEY: "{{ intel_settings.hakey }}"
+#       VTKEY: "{{ intel_settings.vtkey }}"
+#       XFORCEPASS: "{{ intel_settings.xforcepass }}"
+#       XFORCEKEY: "{{ intel_settings.xforcekey }}"
 

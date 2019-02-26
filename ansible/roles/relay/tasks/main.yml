@@ -25,7 +25,7 @@
     user: root
     env:
       RIRHOSTNAME: "haproxyhost"
-      KAFKAHOSTS: "{{ kafka_host }}"
+      KAFKAHOSTS: "{{ kafka_ip }}:{{ kafka_port }}"
       ATTCKSCENARIO: "{{ campaign_name }}"
     volumes:
       - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
