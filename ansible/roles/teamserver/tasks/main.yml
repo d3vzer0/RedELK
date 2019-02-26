@@ -78,6 +78,16 @@
       - "{{ cobaltstrike_dir }}:/opt/cobaltstrike"
 
 
-
-  
+- name: Run Filebeat container
+  docker_container:
+    name: filebeat
+    image: docker.elastic.co/beats/filebeat:6.6.0
+    recreate: yes
+    env:
+      CSHOSTNAME: "csteamserver"
+      KAFKAHOSTS: "{{ kafka_ip }}:{{ kafka_port }}"
+      ATTCKSCENARIO: "{{ campaign_name }}"
+    volumes:
+      - "{{ teamservers_dir }}/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - "{{ cobaltstrike_dir }}/logs:/usr/share/filebeat/logs/cobaltstrike"
 
