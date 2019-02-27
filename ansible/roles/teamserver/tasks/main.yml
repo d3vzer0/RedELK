@@ -91,3 +91,28 @@
       - "{{ teamservers_dir }}/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
       - "{{ cobaltstrike_dir }}/logs:/usr/share/filebeat/logs/cobaltstrike"
 
+
+- name: Build lsync container
+  docker_image:
+    name: redelk/lsync
+    path: "{{ teamservers_dir }}/lsync"
+    force: yes
+
+    
+- name: Set lsync config variable for target host
+  replace:
+    path: "{{ teamservers_dir }}lsync/conf/lsyncd.lua"
+    regexp: "FILESYNC_HOST"
+    replace: "{{ filesync_ip }}"
+
+
+- name: Run lsync container
+  docker_container:
+    name: lsync
+    image:  redelk/lsync
+    recreate: yes
+    volumes:
+      - "{{ teamservers_dir }}/lsync/conf/lsyncd.lua:/etc/lsyncd.lua:ro"
+      - "{{ teamservers_dir }}/lsync/id_rsa:/home/scponly/.ssh/id_rsa:ro"
+      - "{{ cobaltstrike_dir }}/logs:/var/log/cs"
+

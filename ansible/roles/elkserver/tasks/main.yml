@@ -18,6 +18,12 @@
     state: present
 
 
+- name: Add persistent filesync data volume
+  docker_volume:
+    name: filesyncdata
+    state: present
+
+
 - name: Add persistent Kafka (node1) data volume
   docker_volume:
     name: kafkadata_node1
@@ -128,35 +134,67 @@
       - "{{ elkserver_dir }}/logstash/conf.d:/usr/share/logstash/pipeline"
 
 
-- name: Build enricher container
+- name: Build filesync container
   docker_image:
-    name: redelk/enricher
-    path: "{{ elkserver_dir }}/enrich"
+    name: redelk/filesync
+    path: "{{ elkserver_dir }}/filesync"
     force: yes
   
 
-- name: Run enricher container
+- name: Run filesync container
   docker_container:
-    name: enricher
-    image: redelk/enricher
+    name: filesync
+    image: redelk/filesync
     state: started
     recreate: yes
-    networks:
-      - name: analytics_network
-        aliases:
-          - enricher
-        links:
-          - elasticsearch
-          - kafka
     volumes:
-      - "{{ elkserver_dir }}/lookups:/enrich/lookups"
+      - "{{ elkserver_dir }}/filesync/authorized_keys:/home/scponly/.ssh/authorized_keys"
+      - "filesyncdata:/home/scponly/logs"
+    ports:
+      - "2222:22"
 
 
-- name: Build intel container
-  docker_image:
-    name: redelk/intel
-    path: "{{ elkserver_dir }}/intel"
-    force: yes
+- name: Run NGINX container
+  docker_container:
+    name: nginx
+    image: nginx
+    state: started
+    recreate: yes
+    volumes:
+      - "{{ elkserver_dir }}/nginx/conf/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "filesyncdata:/var/www/html/cslogs"
+    ports:
+      - "80:80"
+
+# - name: Build enricher container
+#   docker_image:
+#     name: redelk/enricher
+#     path: "{{ elkserver_dir }}/enrich"
+#     force: yes
+  
+
+# - name: Run enricher container
+#   docker_container:
+#     name: enricher
+#     image: redelk/enricher
+#     state: started
+#     recreate: yes
+#     networks:
+#       - name: analytics_network
+#         aliases:
+#           - enricher
+#         links:
+#           - elasticsearch
+#           - kafka
+#     volumes:
+#       - "{{ elkserver_dir }}/lookups:/enrich/lookups"
+
+
+# - name: Build intel container
+#   docker_image:
+#     name: redelk/intel
+#     path: "{{ elkserver_dir }}/intel"
+#     force: yes
   
 
 # - name: Run intel container
