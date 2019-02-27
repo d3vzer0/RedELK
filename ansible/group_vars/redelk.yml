@@ -1,2 +1,4 @@
-kafka_host: "10.10.10.4:9200"
+kafka_ip: ""
+kafka_port: ""
+filesync_ip: ""
 campaign_name: "example_campaign"
