@@ -3,7 +3,7 @@ from variables import config
 import csv
 
 class ContextFile:
-    def __init__(self, path='./lookups'):
+    def __init__(self, path='/etc/lookups'):
         self.path = path
     
     def get_indicators(self, lookup='indicators_md5.csv'):

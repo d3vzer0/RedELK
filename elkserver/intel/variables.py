@@ -2,39 +2,42 @@ import os
 
 api_keys = {
     'virustotal': {
-        'url':  os.environ['VTURL'],
-        'key':  os.environ['VTKEY'] 
+        'url':  os.getenv('VTURL', 'https://www.virustotal.com/vtapi/v2/file/report'),
+        'key':  os.getenv('VTKEY', None),
+        'topic': 'intel-virustotal'
     },
     'greynoise': {
-        'url':  os.environ['GREYURL'] ,
+        'url':  os.getenv('GREYURL', 'http://api.greynoise.io:8888/v1/query/ip'),
+        'topic': 'intel-greynoise'
     },
     'xforce': {
-        'url': os.environ['XFORCEURL'] ,
-        'key': os.environ['XFORCEKEY'] ,
-        'password': os.environ['XFORCEPASS'] 
+        'url': os.getenv('XFORCEURL', 'https://api.xforce.ibmcloud.com'),
+        'key': os.getenv('XFORCEKEY', None),
+        'password': os.getenv('XFORCEPASS', None) ,
+        'topic': 'intel-xforce'
     },
     'hybridanalysis': {
-        'url': os.environ['HAURL'] ,
-        'key': os.environ['HAKEY'] 
+        'url': os.getenv('HAURL', 'https://www.hybrid-analysis.com/api/v2/search'),
+        'key': os.getenv('HAKEY', None),
+        'topic': 'intel-hybridanalysis'
     }
 }
 
 config = {
     'kafka': {
-        'host': os.environ['KAFKA_HOST'],
-        'produce_topic': os.environ['PRODUCER_TOPIC'],
+        'host': os.getenv('KAFKA_HOST', 'kafka:29092'),
     },
     'elasticsearch': {
-        'host': os.environ['ELASTIC_HOST'],
+        'host': os.getenv('ELASTIC_HOST', 'elasticsearch:9200'),
     },
     'redis': {
-        'ip': os.environ['REDIS_IP'],
-        'port': int(os.environ['REDIS_PORT'])
+        'ip': os.getenv('REDIS_IP', 'redis_service'),
+        'port': int(os.getenv('REDIS_PORT', 6379))
     },
     'cache': {
-        'virustotal': int(os.environ['CACHE_VT']),
-        'greynoise': int(os.environ['CACHE_GREY']),
-        'xforce': int(os.environ['CACHE_XFORCE']),
-        'hybridanalysis': int(os.environ['CACHE_HA'])
+        'virustotal': int(os.getenv('CACHE_VT', 3600)),
+        'greynoise': int(os.getenv('CACHE_GREY', 3600)),
+        'xforce': int(os.getenv('CACHE_XFORCE', 3600)),
+        'hybridanalysis': int(os.getenv('CACHE_HA', 3600))
     }
 }
