@@ -166,54 +166,60 @@
     ports:
       - "80:80"
 
-# - name: Build enricher container
-#   docker_image:
-#     name: redelk/enricher
-#     path: "{{ elkserver_dir }}/enrich"
-#     force: yes
+- name: Build enricher container
+  docker_image:
+    name: redelk/enricher
+    path: "{{ elkserver_dir }}/enrich"
+    force: yes
   
 
-# - name: Run enricher container
-#   docker_container:
-#     name: enricher
-#     image: redelk/enricher
-#     state: started
-#     recreate: yes
-#     networks:
-#       - name: analytics_network
-#         aliases:
-#           - enricher
-#         links:
-#           - elasticsearch
-#           - kafka
-#     volumes:
-#       - "{{ elkserver_dir }}/lookups:/enrich/lookups"
+- name: Run enricher container
+  docker_container:
+    name: enricher
+    image: redelk/enricher
+    state: started
+    recreate: yes
+    networks:
+      - name: analytics_network
+        aliases:
+          - enricher
+        links:
+          - elasticsearch
+          - kafka
+    volumes:
+      - "{{ elkserver_dir }}/lookups:/enrich/lookups"
 
 
-# - name: Build intel container
-#   docker_image:
-#     name: redelk/intel
-#     path: "{{ elkserver_dir }}/intel"
-#     force: yes
+- name: Build intel container
+  docker_image:
+    name: redelk/intel
+    path: "{{ elkserver_dir }}/intel"
+    force: yes
   
 
-# - name: Run intel container
-#   docker_container:
-#     name: intel
-#     image: redelk/intel
-#     state: started
-#     recreate: yes
-#     networks:
-#       - name: analytics_network
-#         aliases:
-#           - intel
-#         links:
-#           - elasticsearch
-#           - kafka
-#           - redis_service
-#     env:
-#       HAKEY: "{{ intel_settings.hakey }}"
-#       VTKEY: "{{ intel_settings.vtkey }}"
-#       XFORCEPASS: "{{ intel_settings.xforcepass }}"
-#       XFORCEKEY: "{{ intel_settings.xforcekey }}"
+- name: Run virustotal intel container every 15 min
+  cron:
+    name: "Run virustotal lookup container"
+    minute: "*/15"
+    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py virustotal"
 
+    
+- name: Run xforce intel container every 15 min
+  cron:
+    name: "Run xforce lookup container"
+    minute: "*/15"
+    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py xforce"
+
+
+- name: Run greynoise intel container every 15 min
+  cron:
+    name: "Run greynoise lookup container"
+    minute: "*/15"
+    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py greynoise"
+
+
+- name: Run hybridanalysis intel container every 15 min
+  cron:
+    name: "Run hybridanalysis lookup container"
+    minute: "*/15"
+    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py hybridanalysis"
