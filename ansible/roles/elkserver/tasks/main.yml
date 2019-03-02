@@ -201,14 +201,14 @@
   cron:
     name: "Run virustotal lookup container"
     minute: "*/15"
-    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py virustotal"
+    job: "docker run -d --env VTKEY={{ intel_settings.vtkey }} -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py virustotal"
 
-    
+
 - name: Run xforce intel container every 15 min
   cron:
     name: "Run xforce lookup container"
     minute: "*/15"
-    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py xforce"
+    job: "docker run -d --env XFORCEKEY={{ intel_settings.xforcekey }} --env XFORCEPASS={{ intel_settings.xforcepass }} -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py xforce"
 
 
 - name: Run greynoise intel container every 15 min
@@ -222,4 +222,4 @@
   cron:
     name: "Run hybridanalysis lookup container"
     minute: "*/15"
-    job: "docker run -d -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py hybridanalysis"
+    job: "docker run -d --env HAKEY={{ intel_settings.hakey }} -v {{ elkserver_dir }}/lookups:/etc/lookups --network='analytics_network' redelk/intel python producer.py hybridanalysis"
