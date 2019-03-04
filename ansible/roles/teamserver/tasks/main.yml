@@ -8,10 +8,16 @@
     name: xt_TPROXY
     state: present
 
+- name: Check if teamserver already exists  
+  stat:
+    path: "{{ cobaltstrike_dir }}"
+  register: statcs
+
 - name: Copy Cobalt Strike package to server
   copy: 
     src: "{{ cobaltstrike_src_dir }}"
     dest: "{{ cobaltstrike_dir }}"
+    when: not statcs.stat.exists
 
 - name: Build Teamserver container
   docker_image:
@@ -23,7 +29,6 @@
   docker_image:
     name: redelk/haproxy
     path: "{{ teamservers_dir }}/haproxy"
-    force: yes
 
 - name: Create custom docker network for our PROX setup
   docker_network:
@@ -44,7 +49,6 @@
       ADMINPORT: "50050"
     volumes:
       - "{{ teamservers_dir }}/haproxy:/etc/haproxy"
-
     networks:
       - name: "c2_network"
         aliases:
@@ -54,7 +58,6 @@
     ports:
       - "8080:8080"
       - "9090:9090"
-
 
 - name: Run Teamserver container
   docker_container:
@@ -77,7 +80,6 @@
     volumes:
       - "{{ cobaltstrike_dir }}:/opt/cobaltstrike"
 
-
 - name: Run Filebeat container
   docker_container:
     name: filebeat
@@ -91,20 +93,22 @@
       - "{{ teamservers_dir }}/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
       - "{{ cobaltstrike_dir }}/logs:/usr/share/filebeat/logs/cobaltstrike"
 
-
 - name: Build lsync container
   docker_image:
     name: redelk/lsync
     path: "{{ teamservers_dir }}/lsync"
     force: yes
 
-    
 - name: Set lsync config variable for target host
   replace:
     path: "{{ teamservers_dir }}lsync/conf/lsyncd.lua"
     regexp: "FILESYNC_HOST"
     replace: "{{ filesync_ip }}"
 
+- name: Set permissions id_rsa private key
+  file:
+    path: "{{ teamservers_dir }}/lsync/id_rsa"
+    mode: 0600
 
 - name: Run lsync container
   docker_container:
@@ -115,4 +119,3 @@
       - "{{ teamservers_dir }}/lsync/conf/lsyncd.lua:/etc/lsyncd.lua:ro"
       - "{{ teamservers_dir }}/lsync/id_rsa:/home/scponly/.ssh/id_rsa:ro"
       - "{{ cobaltstrike_dir }}/logs:/var/log/cs"
-

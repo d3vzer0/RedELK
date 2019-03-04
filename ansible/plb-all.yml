@@ -1,9 +1,10 @@
 - hosts: all
   become: yes
+  strategy: free
   roles:
-    - { role: generic, tags: ['generic'] }
-    - { role: firewall, tags: ['firewall'] }
-    - { role: docker, tags: ['docker'], when: "'redelk' in group_names" }
+    - { role: generic, tags: ['generic', 'core'] }
+    - { role: firewall, tags: ['firewall', 'core'] }
+    - { role: docker, tags: ['docker', 'core'] }
 
 - hosts: relay
   become: yes
