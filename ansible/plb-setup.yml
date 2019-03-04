@@ -1,0 +1,53 @@
+- hosts: all
+  become: yes
+  strategy: free
+  roles:
+    - role: generic
+      tags: ['generic', 'core']
+
+    - role: firewall
+      tags: ['firewall', 'core']
+
+    - role: docker
+      tags: ['docker', 'core']
+
+
+- hosts: relay
+  become: yes
+  roles:
+    - role: relay
+      tags: ['relay']
+
+
+- hosts: analytics
+  become: yes
+  vars_prompt:
+    - name: "nginx_username"
+      prompt: "Username for NGINX htpasswd?"
+    - name: "nginx_password"
+      prompt: "Password for NGINX htpasswd?"
+  roles:
+    - role: analytics
+      tags: ['elkserver', 'analytics']
+
+    - role: filesync
+      tags: ['filesync', 'analytics']
+
+    - role: nginx
+      tags: ['nginx', 'analytics']
+
+    - role: elkstack
+      tags: ['elkstack', 'analytics']
+
+    - role: intel
+      tags: ['intel', 'analytics']
+
+    - role: enricher
+      tags: ['enricher', 'analytics']
+
+
+- hosts: backend
+  become: yes
+  roles:
+    - role: teamserver
+      tags: ['teamserver']
