@@ -1,0 +1,9 @@
+- name: Copy Docker elkserver project to target server
+  copy: 
+    src: ../dist/elkserver/
+    dest: "{{ elkserver_dir }}"
+
+
+- name: Create custom docker network for our analytics setup
+  docker_network:
+    name: analytics_network

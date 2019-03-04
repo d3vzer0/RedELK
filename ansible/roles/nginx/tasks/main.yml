@@ -1,0 +1,30 @@
+
+
+- name: Installing python passlib for nginx htpasswd management
+  pip:
+    name: "passlib"
+    state: present
+
+- name: Creating htaccess for NGINX container
+  htpasswd:
+    state: present
+    create: yes
+    name: "{{ nginx_username }}"
+    password: "{{ nginx_password }}"
+    path: "{{ elkserver_dir }}/nginx/conf/.htpasswd"
+    mode: 0600
+
+
+- name: Run NGINX container
+  docker_container:
+    name: nginx
+    image: nginx
+    state: started
+    recreate: yes
+    volumes:
+      - "{{ elkserver_dir }}/nginx/conf/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "{{ elkserver_dir }}/nginx/conf/.htpasswd:/etc/nginx/conf.d/proxy.conf"
+      - "filesyncdata:/var/www/html/cslogs"
+    ports:
+      - "80:80"
+

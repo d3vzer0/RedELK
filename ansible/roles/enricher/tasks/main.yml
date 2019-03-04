@@ -1,0 +1,22 @@
+- name: Build enricher container
+  docker_image:
+    name: redelk/enricher
+    path: "{{ elkserver_dir }}/enrich"
+    force: yes
+  
+
+- name: Run enricher container
+  docker_container:
+    name: enricher
+    image: redelk/enricher
+    state: started
+    recreate: yes
+    networks:
+      - name: analytics_network
+        aliases:
+          - enricher
+        links:
+          - elasticsearch
+          - kafka
+    volumes:
+      - "{{ elkserver_dir }}/lookups:/enrich/lookups"

@@ -1,0 +1,22 @@
+- name: Add persistent filesync data volume
+  docker_volume:
+    name: filesyncdata
+    state: present
+
+- name: Build filesync container
+  docker_image:
+    name: redelk/filesync
+    path: "{{ elkserver_dir }}/filesync"
+    force: yes
+  
+- name: Run filesync container
+  docker_container:
+    name: filesync
+    image: redelk/filesync
+    state: started
+    recreate: yes
+    volumes:
+      - "{{ elkserver_dir }}/filesync/authorized_keys:/home/scponly/.ssh/authorized_keys"
+      - "filesyncdata:/home/scponly/logs"
+    ports:
+      - "2222:22"
