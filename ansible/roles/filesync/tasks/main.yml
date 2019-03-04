@@ -1,8 +1,3 @@
-- name: Add persistent filesync data volume
-  docker_volume:
-    name: filesyncdata
-    state: present
-
 - name: Build filesync container
   docker_image:
     name: redelk/filesync

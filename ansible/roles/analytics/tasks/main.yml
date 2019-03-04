@@ -3,7 +3,11 @@
     src: ../dist/elkserver/
     dest: "{{ elkserver_dir }}"
 
-
 - name: Create custom docker network for our analytics setup
   docker_network:
     name: analytics_network
+
+- name: Add persistent filesync data volume
+  docker_volume:
+    name: filesyncdata
+    state: present
