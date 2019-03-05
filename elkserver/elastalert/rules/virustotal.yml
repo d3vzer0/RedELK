@@ -1,0 +1,11 @@
+name: Virustotal Match
+alert_text: "\nAn IOC was uploaded to VirusTotal. \n\nDate: {0} \nType: {1} \nMD5: {2}"
+alert_text_type: alert_text_only
+type: frequency
+index: intel-virustotal-*
+num_events: 1
+alert_text_args: ["@timestamp", "intel_type", "md5"]
+timeframe:
+    hours: 1
+alert:
+- "telegram"

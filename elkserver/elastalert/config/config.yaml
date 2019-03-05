@@ -15,3 +15,7 @@ writeback_index: elastalert_status
 
 alert_time_limit:
   days: 2
+
+
+telegram_bot_token: 
+telegram_room_id: ""
