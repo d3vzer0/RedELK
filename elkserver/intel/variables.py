@@ -25,13 +25,13 @@ api_keys = {
 
 config = {
     'kafka': {
-        'host': os.getenv('KAFKA_HOST', 'kafka:29092'),
+        'host': os.getenv('KAFKA_HOST', 'localhost:9092'),
     },
     'elasticsearch': {
-        'host': os.getenv('ELASTIC_HOST', 'elasticsearch:9200'),
+        'host': os.getenv('ELASTIC_HOST', 'localhost:9200'),
     },
     'redis': {
-        'ip': os.getenv('REDIS_IP', 'redis_service'),
+        'ip': os.getenv('REDIS_IP', 'localhost'),
         'port': int(os.getenv('REDIS_PORT', 6379))
     },
     'cache': {
